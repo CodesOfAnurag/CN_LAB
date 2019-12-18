@@ -1,8 +1,8 @@
 #!/bin/bash
-for i in 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8
-do 
-	echo -n $i" "
-	ns 1.tcl $i
-	sleep 0.2
-done
 
+for i in 1 2 3 4 5 6 7 8 9
+do
+    echo -n "0."$i
+    ns 1.tcl 0.$i
+    sleep 0.1
+done

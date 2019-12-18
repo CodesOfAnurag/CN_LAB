@@ -1,24 +1,22 @@
 BEGIN{
-	totalSent=0;
-	totalReceived=0;
-	totalLost=0;
+    sent=0;
+    rec=0;
+    lost=0;
 }
 {
-	packetType = $5
-	event = $1
-	if (packetType == "cbr")
-	{
-		if(event == "+")
-			totalSent++;
-		else if(event=="r")
-			totalReceived++;
-		else if(event=="d")
-			totalLost++;
-	}
+    packetType = $5
+    event = $1
+    if (packetType == "cbr")
+    {
+        if (event == "+")
+            sent++;
+        else if (event == "r")
+            rec++;
+        else if (event == "d")
+            lost++;
+    }
 }
 END{
-	#printf("\nSent : %d\n", totalSent);
-	#printf("Received : %d\n", totalReceived);
-	#printf("Dropped : %d\n", totalLost);
-	printf("%d\n", totalLost)
+    #printf("\t%d\t%d\t%d\n", sent, rec, lost);
+    printf("\t%d\n", lost);
 }
