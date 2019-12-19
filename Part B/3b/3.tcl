@@ -1,48 +1,61 @@
 set ns [new Simulator]
-set traceFile [open 3.tr w]
-$ns trace-all $traceFile
-set namFile [open 3.nam w]
-$ns namtrace-all $namFile
+$ns color 2 blue
+$ns color 3 green
+
+set tf [open 3.tr w]
+$ns trace-all $tf
+set nf [open 3.nam w]
+$ns namtrace-all $nf
 
 proc finish {} {
-	global ns traceFile namFile
-	$ns flush-trace
-	close $traceFile
-	close $namFile
-	exec awk -f 3.awk 3.tr &
-	exec nam 3.nam &
-	exit 0
+    global ns nf tf
+    $ns flush-trace
+    close $nf
+    close $tf
+    #exec awk -f 3.awk 3.tr &
+    #exec nam 3.nam &
+    exit 0
 }
 
 for {set i 0} {$i < 4} {incr i} {
-	set n($i) [$ns node]
+    set n($i) [$ns node]
 }
 
-$ns duplex-link $n(0) $n(2) 2Mb [lindex $argv 0]ms DropTail
-$ns duplex-link $n(1) $n(2) 2Mb [lindex $argv 0]ms DropTail
-$ns duplex-link $n(2) $n(3) 900kb [lindex $argv 0]ms DropTail
+$ns duplex-link $n(0) $n(2) 2Mb 10ms DropTail
+$ns duplex-link $n(1) $n(2) 2Mb 10ms DropTail
+$ns duplex-link $n(2) $n(3) 900kb 10ms DropTail
 $ns queue-limit $n(0) $n(2) 10
 
+# ---- setting up UDP connection ----
+set udp [new Agent/UDP]
+$udp set fid_ 2
+$ns attach-agent $n(0) $udp
+
+set cbr [new Application/Traffic/CBR]
+$cbr set packetSize_ 500
+$cbr set interval_ 0.005
+$cbr attach-agent $udp
+
+set null [new Agent/Null]
+$ns attach-agent $n(3) $null
+
+$ns connect $udp $null
+# ---- UDP connection with CBR Traffic formed ----
+
+# ---- setting up TCP connection ----
 set tcp [new Agent/TCP]
-$ns attach-agent $n(0) $tcp
-set sink [new Agent/TCPSink]
-$ns attach-agent $n(3) $sink
-$ns connect $tcp $sink
+$tcp set fid_ 3
+$ns attach-agent $n(1) $tcp
 
 set ftp [new Application/FTP]
 $ftp attach-agent $tcp
 $ftp set type_ FTP
 
-set udp [new Agent/UDP]
-$ns attach-agent $n(1) $udp
-set null [new Agent/Null]
-$ns attach-agent $n(3) $null
-$ns connect $udp $null
+set sink [new Agent/TCPSink]
+$ns attach-agent $n(3) $sink
 
-set cbr [new Application/Traffic/CBR]
-$cbr set packetSIze_ 500
-$cbr set interval_ 0.005
-$cbr attach-agent $udp
+$ns connect $tcp $sink
+# ---- TCP connection with FTP formed ----
 
 $ns at 0.5 "$ftp start"
 $ns at 1.0 "$cbr start"

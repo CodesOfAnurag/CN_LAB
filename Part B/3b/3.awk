@@ -1,45 +1,36 @@
 BEGIN{
-	TCPSent = 0;
-	TCPReceived = 0;
-	TCPLost = 0;
-	UDPSent = 0;
-	UDPReceived = 0;
-	UDPLost = 0;
-	totalSent = 0;
-	totalReceived = 0;
-	totalLost = 0;
+    tcpSent=0;
+    tcpRec=0;
+    tcpLost=0;
+    udpSent=0;
+    udpRec=0;
+    udpLost=0;
 }
 {
-	packetType = $5
-	event = $1
-	if(packetType == "tcp")
-	{
-		if (event == "+")
-			TCPSent++;
-		else if (event == "r")
-			TCPReceived++;
-		else if (event == "d")
-			TCPLost++;
-	}
-	if(packetType == "cbr")
-	{
-		if (event == "+")
-			UDPSent++;
-		else if (event == "r")
-			UDPReceived++;
-		else if (event == "d")
-			UDPLost++;
-	}
+    pktType=$5
+    event=$1
+    if (pktType=="tcp")
+    {
+        if (event=="+")
+            tcpSent++;
+        else if (event=="r")
+            tcpRec++;
+        else if (event=="d")
+            tcpLost++;
+    }
+    if (pktType=="cbr")
+    {
+        if (event=="+")
+            udpSent++;
+        else if (event=="r")
+            udpRec++;
+        else if (event=="d")
+            udpLost++;
+    }
 }
 END{
-	totalSent = TCPSent + UDPSent;
-	totalLost = TCPLost + UDPLost;
-	printf("TCP packets sent : %d\n",TCPSent);
-	printf("TCP packets received : %d\n",TCPReceived);
-	printf("TCP packets lost : %d\n",TCPLost);
-	printf("UDP packets sent : %d\n",UDPSent);
-	printf("UDP packets received : %d\n",UDPReceived);
-	printf("UDP packets lost : %d\n",UDPLost);
-	printf("Total packets sent : %d\n",totalSent);
-	printf("Total packets lost : %d\n",totalLost);
+    printf("Total Sent: %d\nTotal Lost: %d\n", tcpSent+udpSent, tcpLost+udpLost);
+    printf("\tSent\tRec\tLost\n");
+    printf("TCP:\t%d\t%d\t%d\n", tcpSent, tcpRec, tcpLost);
+    printf("UDP:\t%d\t%d\t%d\n", udpSent, udpRec, udpLost);
 }
