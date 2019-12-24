@@ -1,45 +1,45 @@
 #include<stdio.h>
-#include <string.h>
-#include <stdlib.h>
+#include<stdlib.h>
+#include<string.h>
 
 int checksum(char data[30])
 {
-	int temp, sum=0, i, n;
-	n=strlen(data);
-	if (n%2!=0) n=(n+1)/2;
-	else 		n/=2;
-	printf("Data\n");
-	for (i=0; i<n; i++)
+	int i, n = strlen(data), temp, sum=0;
+	n = (n%2==0)? n/2 : (n+1)/2 ;
+
+	printf("DATA:\n");
+	for(i=0; i<n; i++)
 	{
-		temp=data[i*2];
-		temp=(temp*256)+data[(i*2)+1];
+		temp = data[i*2];
+		temp = (temp*256) + data[(i*2)+1];
 		printf("%x\n", temp);
-		sum+=temp;
+		sum += temp;
 	}
+
 	if (sum%65536!=0)
 	{
-		n=sum%65536;
-		sum=(sum/65536)+n;
+		n = sum%65536;
+		sum = (sum/65536) + n;
 	}
-	printf("Sum:%x\n", sum);
-	return 65536-sum;
+
+	printf("Sum : %X\n", sum);
+	return 65535-sum;
 }
 
-void main(){
+void main()
+{
 	char data[30];
+	int csum, nsum;
 	printf("Enter Data: ");
-	scanf("%s",data);
-	int csum=checksum(data);
-	printf("Validated checksum: %x\n", csum);
+	scanf("%s", data);
+	csum = checksum(data);
+	printf("CheckSum: %X\n", csum);
+
+	printf("Test for Error Detection (1-Yes/0-No): ");
 	int ch;
-	printf("Enter 0-For NO Error, 1-For Error: ");
 	scanf("%d", &ch);
-	if (ch)
-	{
-		int r = rand()%strlen(data);
-		data[r]++;
-	}
-	int nsum= checksum(data);
-	printf("New Checksum: %x\n",nsum);
-	(nsum-csum)?printf("Error Detected\n") : printf("No Error Detected\n");
+	if (ch) data[rand()%strlen(data)]++;
+	nsum=checksum(data);
+	printf("New CheckSum: %X\n", nsum);
+	(nsum-csum)? printf("Error Detected\n"): printf("No Error Detected\n");
 }
